@@ -111,18 +111,27 @@ async function send() {
         </div>
       ))}
 
-      <div className="input-area">
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Напиши, что ищешь..."
-          onKeyDown={(e) => e.key === "Enter" && send()}
-        />
+    <div className="input-area">
+  <input
+    value={text}
+    onChange={(e) => setText(e.target.value)}
+    placeholder="Напиши, что ищешь..."
+    onKeyDown={(e) => e.key === "Enter" && send()}
+  />
 
-        <button onClick={send} disabled={loading}>
-          {loading ? "..." : "Найти"}
-        </button>
-      </div>
+  <button onClick={send} disabled={loading}>
+    {loading ? "..." : "Найти"}
+  </button>
+</div>
+
+<div
+  className="search-hint"
+  onClick={() =>
+    setText("2 комнаты Хайфа до 4500 без маклера")
+  }
+>
+  💡 например: <b>2 комнаты Хайфа до 4500 без маклера</b>
+</div>
     </div>
   );
 }

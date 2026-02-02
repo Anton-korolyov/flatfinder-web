@@ -102,3 +102,15 @@ body {
 .input-area button:hover {
   background: #6d28d9;
 }
+.search-hint {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #9ca3af;
+  opacity: 0.85;
+  cursor: pointer;
+  user-select: none;
+}
+
+.search-hint:hover {
+  color: #c084fc; /* фиолетовый ховер */
+}
