@@ -14,8 +14,8 @@ export default defineConfig(({ mode }) => ({
       },
 
       manifest: {
-        name: "FlatFinder",
-        short_name: "FlatFinder",
+        name: "piqo",
+        short_name: "piqo",
         description: "Поиск квартир в Израиле",
         start_url: "/",
         display: "standalone",
