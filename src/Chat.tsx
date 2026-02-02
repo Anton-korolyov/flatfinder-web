@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import i18n from "i18next";
+
 import "./chat.css";
 import logo from "./assets/logo.png";
 
@@ -20,55 +23,75 @@ type Message =
   | { from: "user"; text: string }
   | { from: "bot"; result: BotResult };
 
+// 🔤 авто-детект языка по тексту
+function detectLanguage(text: string) {
+  if (/[א-ת]/.test(text)) return "he";
+  if (/[a-zA-Z]/.test(text)) return "en";
+  return "ru";
+}
+
+// 📱 mobile check (для Facebook, если понадобится)
+//function isMobile() {
+//  return /Android|iPhone|iPad/i.test(navigator.userAgent);
+//}
+
 export default function Chat() {
+  const { t } = useTranslation();
+
   const [text, setText] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
 
-async function send() {
-  if (!text.trim()) return;
+  // RTL / LTR
+  useEffect(() => {
+    document.documentElement.dir = i18n.language === "he" ? "rtl" : "ltr";
+  }, [i18n.language]);
 
-  setLoading(true);
+  async function send() {
+    if (!text.trim()) return;
 
-  const userMessage: Message = {
-    from: "user",
-    text,
-  };
+    setLoading(true);
 
-  try {
-    const response = await fetch("https://api.piqo.co.il/api/search", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text }),
-    });
-
-    const data: BotResult = await response.json();
-
-    const botMessage: Message = {
-      from: "bot",
-      result: data,
+    const userMessage: Message = {
+      from: "user",
+      text,
     };
 
-    // ✅ ВАЖНО: перезаписываем, а не добавляем
-    setMessages([userMessage, botMessage]);
-  } catch {
-    alert("Ошибка соединения с сервером");
+    try {
+      const response = await fetch("https://api.piqo.co.il/api/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      const data: BotResult = await response.json();
+
+      const botMessage: Message = {
+        from: "bot",
+        result: data,
+      };
+
+      // перезаписываем (1 запрос = 1 ответ)
+      setMessages([userMessage, botMessage]);
+    } catch {
+      alert("Ошибка соединения с сервером");
+    }
+
+    setLoading(false);
+    setText("");
   }
-
-  setLoading(false);
-  setText("");
-}
-
 
   return (
     <div className="chat-container">
-         <div className="chat-title">
-          <img src={logo} alt="logo" className="chat-logo" />
-           <span>Поиск квартир</span>
-         </div>
+      {/* HEADER */}
+      <div className="chat-title">
+        <img src={logo} alt="logo" className="chat-logo" />
+        <span>{t("title")}</span>
+      </div>
 
+      {/* MESSAGES */}
       {messages.map((m, i) => (
         <div key={i}>
           {m.from === "user" && (
@@ -78,60 +101,73 @@ async function send() {
           {m.from === "bot" && (
             <div className="bot-card">
               <div className="bot-info">
-                {m.result.city && <p>📍 Город: {m.result.city}</p>}
-                {m.result.rooms && <p>🛏 Комнаты: {m.result.rooms}</p>}
+                {m.result.city && (
+                  <p>
+                    📍 {t("city")}: {m.result.city}
+                  </p>
+                )}
+                {m.result.rooms && (
+                  <p>
+                    🛏 {t("rooms")}: {m.result.rooms}
+                  </p>
+                )}
                 {m.result.priceTo && (
-                  <p>💰 Цена до: {m.result.priceTo} ₪</p>
+                  <p>
+                    💰 {t("price")}: {m.result.priceTo} ₪
+                  </p>
                 )}
                 <p>
-                  🚫 Без маклера:{" "}
-                  {m.result.withoutAgent ? "да" : "не важно"}
+                  🚫 {t("noAgent")}:{" "}
+                  {m.result.withoutAgent ? t("yes") : t("any")}
                 </p>
               </div>
 
               <div className="buttons">
-                {m.result.links.map((l, idx) => {
-                  const site = l.site.toLowerCase();
-
-                  return (
-                    <a
-                      key={idx}
-                      href={l.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className={`btn ${site}`}
-                    >
-                      {site === "madlan" ? "📊" : "🔗"} {l.site}
-                    </a>
-                  );
-                })}
+                {m.result.links.map((l, idx) => (
+                  <a
+                    key={idx}
+                    href={l.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`btn ${l.site.toLowerCase()}`}
+                  >
+                    {l.site === "Madlan" ? "📊" : "🔗"} {l.site}
+                  </a>
+                ))}
               </div>
             </div>
           )}
         </div>
       ))}
 
-    <div className="input-area">
-  <input
-    value={text}
-    onChange={(e) => setText(e.target.value)}
-    placeholder="Напиши, что ищешь..."
-    onKeyDown={(e) => e.key === "Enter" && send()}
-  />
+      {/* INPUT */}
+      <div className="input-area">
+        <input
+          value={text}
+          onChange={(e) => {
+            const val = e.target.value;
+            setText(val);
 
-  <button onClick={send} disabled={loading}>
-    {loading ? "..." : "Найти"}
-  </button>
-</div>
+            // 🧠 авто-переключение языка
+            const lang = detectLanguage(val);
+            i18n.changeLanguage(lang);
+          }}
+          placeholder={t("placeholder")}
+          onKeyDown={(e) => e.key === "Enter" && send()}
+        />
 
-<div
-  className="search-hint"
-  onClick={() =>
-    setText("2 комнаты Хайфа до 4500 без маклера")
-  }
->
-  💡 например: <b>2 комнаты Хайфа до 4500 без маклера</b>
-</div>
+        <button onClick={send} disabled={loading}>
+          {loading ? t("loading") : t("search")}
+        </button>
+      </div>
+
+      {/* EXAMPLE */}
+      <div
+        className="search-hint"
+        onClick={() => setText(t("example"))}
+      >
+        💡 <b>{t("example")}</b>
+      </div>
     </div>
   );
 }

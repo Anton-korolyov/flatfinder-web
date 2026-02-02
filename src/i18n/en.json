@@ -1,0 +1,13 @@
+{
+  "title": "Apartment search",
+  "placeholder": "Type what you are looking for...",
+  "search": "Search",
+  "loading": "...",
+  "city": "City",
+  "rooms": "Rooms",
+  "price": "Price up to",
+  "noAgent": "No agent",
+  "example": "e.g. 2 rooms in Haifa up to 4500",
+  "yes": "yes",
+  "any": "any"
+}
