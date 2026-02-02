@@ -36,7 +36,7 @@ async function send() {
   };
 
   try {
-    const response = await fetch("https://localhost:7108/api/search", {
+    const response = await fetch("https://api.piqo.co.il/api/search", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
