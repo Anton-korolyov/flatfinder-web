@@ -30,11 +30,6 @@ function detectLanguage(text: string) {
   return "ru";
 }
 
-// 📱 mobile check (для Facebook, если понадобится)
-//function isMobile() {
-//  return /Android|iPhone|iPad/i.test(navigator.userAgent);
-//}
-
 export default function Chat() {
   const { t } = useTranslation();
 
@@ -46,6 +41,24 @@ export default function Chat() {
   useEffect(() => {
     document.documentElement.dir = i18n.language === "he" ? "rtl" : "ltr";
   }, [i18n.language]);
+
+  // 📊 tracking визита (1 раз при заходе)
+  useEffect(() => {
+    fetch("https://api.piqo.co.il/api/track", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        path: window.location.pathname,
+        referrer: document.referrer,
+        screen: `${window.screen.width}x${window.screen.height}`,
+        language: i18n.language,
+      }),
+    }).catch(() => {
+      // тихо игнорируем ошибки
+    });
+  }, []);
 
   async function send() {
     if (!text.trim()) return;
@@ -73,7 +86,7 @@ export default function Chat() {
         result: data,
       };
 
-      // перезаписываем (1 запрос = 1 ответ)
+      // 1 запрос = 1 ответ
       setMessages([userMessage, botMessage]);
     } catch {
       alert("Ошибка соединения с сервером");
@@ -106,16 +119,19 @@ export default function Chat() {
                     📍 {t("city")}: {m.result.city}
                   </p>
                 )}
+
                 {m.result.rooms && (
                   <p>
                     🛏 {t("rooms")}: {m.result.rooms}
                   </p>
                 )}
+
                 {m.result.priceTo && (
                   <p>
                     💰 {t("price")}: {m.result.priceTo} ₪
                   </p>
                 )}
+
                 <p>
                   🚫 {t("noAgent")}:{" "}
                   {m.result.withoutAgent ? t("yes") : t("any")}
@@ -161,16 +177,22 @@ export default function Chat() {
         </button>
       </div>
 
-      {/* EXAMPLE */}
-   <div className="search-hint">
-  💡
-  <div className="example-item" onClick={() => setText(t("example"))}>
-    🏠 {t("example")}
-  </div>
-  <div className="example-item" onClick={() => setText(t("exampleCar"))}>
-    🚗 {t("exampleCar")}
-  </div>
-</div>
+      {/* EXAMPLES */}
+      <div className="search-hint">
+        💡
+        <div
+          className="example-item"
+          onClick={() => setText(t("example"))}
+        >
+          🏠 {t("example")}
+        </div>
+        <div
+          className="example-item"
+          onClick={() => setText(t("exampleCar"))}
+        >
+          🚗 {t("exampleCar")}
+        </div>
+      </div>
     </div>
   );
 }
