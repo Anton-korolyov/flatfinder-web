@@ -44,24 +44,21 @@ export default function Chat() {
 
   // 📊 tracking визита (1 раз при заходе)
   useEffect(() => {
-  fetch("https://api.piqo.co.il/api/track", {
-    method: "POST",
-    mode: "cors",
-    credentials: "include",
-    keepalive: true,
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      path: window.location.pathname,
-      referrer: document.referrer,
-      screen: `${window.screen.width}x${window.screen.height}`,
-      language: i18n.language,
-    }),
-  }).catch(() => {
-    // тихо игнорируем ошибки
-  });
-}, []);
+    fetch("https://api.piqo.co.il/api/track", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        path: window.location.pathname,
+        referrer: document.referrer,
+        screen: `${window.screen.width}x${window.screen.height}`,
+        language: i18n.language,
+      }),
+    }).catch(() => {
+      // тихо игнорируем ошибки
+    });
+  }, []);
 
   async function send() {
     if (!text.trim()) return;
