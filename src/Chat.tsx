@@ -162,12 +162,15 @@ export default function Chat() {
       </div>
 
       {/* EXAMPLE */}
-      <div
-        className="search-hint"
-        onClick={() => setText(t("example"))}
-      >
-        💡 <b>{t("example")}</b>
-      </div>
+   <div className="search-hint">
+  💡
+  <div className="example-item" onClick={() => setText(t("example"))}>
+    🏠 {t("example")}
+  </div>
+  <div className="example-item" onClick={() => setText(t("exampleCar"))}>
+    🚗 {t("exampleCar")}
+  </div>
+</div>
     </div>
   );
 }

@@ -114,3 +114,9 @@ body {
 .search-hint:hover {
   color: #c084fc; /* фиолетовый ховер */
 }
+.example-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
