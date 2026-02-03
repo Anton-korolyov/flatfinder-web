@@ -10,7 +10,14 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
 
       devOptions: {
-        enabled: mode === "development"
+        enabled: mode === "development",
+      },
+
+      workbox: {
+        skipWaiting: true,              // ⬅️ ВАЖНО
+        clientsClaim: true,             // ⬅️ ВАЖНО
+        cleanupOutdatedCaches: true,     // ⬅️ ВАЖНО
+        navigateFallback: "/index.html",
       },
 
       manifest: {
@@ -18,6 +25,7 @@ export default defineConfig(({ mode }) => ({
         short_name: "piqo",
         description: "Поиск квартир в Израиле",
         start_url: "/",
+        scope: "/",
         display: "standalone",
 
         background_color: "#0f0f14",
@@ -27,15 +35,15 @@ export default defineConfig(({ mode }) => ({
           {
             src: "/icon-192.png",
             sizes: "192x192",
-            type: "image/png"
+            type: "image/png",
           },
           {
             src: "/icon-512.png",
             sizes: "512x512",
-            type: "image/png"
-          }
-        ]
-      }
-    })
-  ]
+            type: "image/png",
+          },
+        ],
+      },
+    }),
+  ],
 }));
